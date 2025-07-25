@@ -379,6 +379,22 @@ long FswCmdInterpreter(char CmdLine[512],double *CmdTime)
          SC[Isc].AC.Thr[Ithr].ThrustLevelCmd = ThrLevelCmd;
       }
 
+      else if (sscanf(CmdLine,"%lf SC[%ld].AC.IdealTrq = [%lf %lf %lf]",
+         CmdTime,&Isc,&Vec[0],&Vec[1],&Vec[2]) == 5) {
+         NewCmdProcessed = TRUE;
+         SC[Isc].AC.IdealTrq[0] = Vec[0];
+         SC[Isc].AC.IdealTrq[1] = Vec[1];
+         SC[Isc].AC.IdealTrq[2] = Vec[2];
+      }
+
+      else if (sscanf(CmdLine,"%lf SC[%ld].AC.IdealFrc = [%lf %lf %lf]",
+         CmdTime,&Isc,&Vec[0],&Vec[1],&Vec[2]) == 5) {
+         NewCmdProcessed = TRUE;
+         SC[Isc].AC.IdealFrc[0] = Vec[0];
+         SC[Isc].AC.IdealFrc[1] = Vec[1];
+         SC[Isc].AC.IdealFrc[2] = Vec[2];
+      }
+
       else if (sscanf(CmdLine,"Event Eclipse Entry SC[%ld] qrl = [%lf %lf %lf %lf]",
          &Isc,&q[0],&q[1],&q[2],&q[3]) == 5) {
          *CmdTime = SimTime+DTSIM; /* Allows exiting while loop in CmdInterpreter */

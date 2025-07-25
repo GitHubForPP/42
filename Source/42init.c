@@ -4543,17 +4543,10 @@ void InitSim(int argc, char **argv)
       qjh[2] = 0.0;
       qjh[3] = 0.979153221449;
       
-      #ifdef _ENABLE_RBT_
-         sprintf(InOutPath,"../../GSFC/RBT/InOut/");
-         sprintf(ModelPath,"../../GSFC/RBT/Model/");
-         if (argc > 1) sprintf(InOutPath,"../../GSFC/RBT/%s/",argv[1]);
-         if (argc > 2) sprintf(ModelPath,"../../GSFC/RBT/%s/",argv[2]);
-      #else
-         sprintf(InOutPath,"./InOut/");
-         sprintf(ModelPath,"./Model/");
-         if (argc > 1) sprintf(InOutPath,"./%s/",argv[1]);
-         if (argc > 2) sprintf(ModelPath,"./%s/",argv[2]);
-      #endif
+      sprintf(InOutPath,"InOut/");
+      sprintf(ModelPath,"Model/");
+      if (argc > 1) sprintf(InOutPath,"%s/",argv[1]);
+      if (argc > 2) sprintf(ModelPath,"%s/",argv[2]);
 
 /* .. Read from file Inp_Sim.txt */
       infile=FileOpen(InOutPath,"Inp_Sim.txt","r");
