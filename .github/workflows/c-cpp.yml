@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: apt-get update
-      run: apt-get update
+      run: sudo apt-get update
     - name: install dep
       run: sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libglfw3-dev
     - name: make
@@ -28,7 +28,7 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: apt-get update
-      run: apt-get update
+      run: sudo apt-get update
     - name: install dep
       run: sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libglfw3-dev
     - name: make
