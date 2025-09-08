@@ -5,9 +5,9 @@ name: C/C++ CI
 # using up runner minutes
 on:
   push:
-    branches: [ master ]
+    branches: [ master, main, dev ]
   pull_request:
-    branches: [ master ]
+    branches: [ master, main, dev ]
 
 jobs:
   build-ubuntu:
@@ -15,6 +15,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        platforms: linux/amd64,linux/arm64
     - name: apt-get update
       run: sudo apt-get update
     - name: install dep
@@ -27,6 +29,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        platforms: linux/amd64,linux/arm64
     - name: apt-get update
       run: sudo apt-get update
     - name: install dep
@@ -39,5 +43,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
+      with:
+        platforms: linux/amd64,linux/arm64
     - name: make
       run: make GUIFLAG=
