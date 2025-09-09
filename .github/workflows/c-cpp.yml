@@ -12,16 +12,6 @@ on:
 jobs:
   build-ubuntu:
     # default Ubuntu build
-    runs-on: ubuntu-latest-arm
-    steps:
-    - uses: actions/checkout@v2
-    - name: apt-get update
-      run: sudo apt-get update
-    - name: install dep
-      run: sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libglfw3-dev
-    - name: make
-      run: make
-      
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
@@ -51,3 +41,16 @@ jobs:
     - uses: actions/checkout@v2
     - name: make
       run: make GUIFLAG=
+
+#
+  build-ubuntu-arm64:
+    # default Ubuntu build
+    runs-on: ubuntu-latest-arm
+    steps:
+    - uses: actions/checkout@v2
+    - name: apt-get update
+      run: sudo apt-get update
+    - name: install dep
+      run: sudo apt-get -y install libglu1-mesa-dev freeglut3-dev mesa-common-dev libglfw3-dev
+    - name: make
+      run: make
