@@ -45,7 +45,7 @@ jobs:
 #
   build-ubuntu-arm64:
     # default Ubuntu build
-    runs-on: ubuntu-latest-arm
+    runs-on: ubuntu-25.04-arm
     steps:
     - uses: actions/checkout@v2
     - name: apt-get update
