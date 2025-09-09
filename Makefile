@@ -161,7 +161,7 @@ ifeq ($(42PLATFORM),__MSYS__)
       LFLAGS = -L $(GLUT)lib/ -L $(GLEW)lib/
       GUIOBJ = $(OBJ)42gl.o $(OBJ)42glut.o $(OBJ)glkit.o $(OBJ)42gpgpu.o
       GLINC = -I $(GLEW)include/GL/ -I $(GLUT)include/GL/
-      ARCHFLAG = -D GLUT_NO_LIB_PRAGMA -D GLUT_NO_WARNING_DISABLE -D GLUT_DISABLE_ATEXIT_HACK
+      ARCHFLAG = -D GLUT_NO_LIB_PRAGMA -D GLUT_NO_WARNING_DISABLE -D GLUT_DISABLE_ATEXIT_HACK -D GLEW_STATIC
    else
       GUIOBJ =
       GLINC =
