@@ -630,11 +630,13 @@ void ThreeAxisAttitudeCommand(struct SCType *S)
 {
       struct JointType *G;
       struct BodyType *B;
+      struct AcJointType *AG;
       struct CmdType *Cmd;
       struct CmdVecType *PV, *SV;
       double CRN[3][3],C[3][3],qln[4],Cdot[3][3];
       double PriVecBi[3],SecVecBi[3],PriVecGi[3],SecVecGi[3];
       double PriVecGo[3],SecVecGo[3],CGoGi[3][3];
+      double AngErr;
       long Ig,Bi,i,j;
 
 
@@ -708,7 +710,8 @@ void ThreeAxisAttitudeCommand(struct SCType *S)
          G = &S->G[Ig];
          Bi = G->Bin;
          B = &S->B[Bi];
-         Cmd = &S->AC.G[Ig].GCmd;
+         AG = &S->AC.G[Ig];
+         Cmd = &AG->GCmd;
          PV = &Cmd->PriVec;
          SV = &Cmd->SecVec;
 
@@ -735,6 +738,12 @@ void ThreeAxisAttitudeCommand(struct SCType *S)
                PointGimbalToTarget(G->RotSeq,G->CGiBi,G->CBoGo,PriVecBi,
                   PV->R,Cmd->Ang);
             }
+            for(i=0;i<G->RotDOF;i++) {
+               AngErr = G->Ang[i] - Cmd->Ang[i];
+               Cmd->AngRate[i] = -AG->AngGain[i]/AG->AngRateGain[i]*AngErr;
+               Cmd->AngRate[i] = Limit(Cmd->AngRate[i],
+               -AG->MaxAngRate[i],AG->MaxAngRate[i]);
+               }
          }
       }
 }
@@ -2036,6 +2045,74 @@ void RoverFSW(struct SCType *S)
 #endif
 }
 /**********************************************************************/
+/* Lunar Comm Demonstration                                           */
+void LunarCommFSW(struct SCType *S)
+{
+      struct AcType *AC;
+      double CLN[3][3],CRN[3][3],qrn[4],wln[3];
+      double CRL[3][3] = {{ 1.0, 0.0, 0.0}, 
+                          { 0.0, 1.0, 0.0},
+                          { 0.0, 0.0, 1.0}}; 
+      static double Kr[3],Kp[3];
+      double werr[3],therr[3],Tcmd[3];
+      double AngErr[2];
+      static double IntgErr[2] = {0.0,0.0};
+      double GndPosN[3],GndPosH[3],ViewAxisN[3],ViewAxisB[3],GimCmd[3];
+      double Zvec[3] = {0.0,0.0,1.0};
+      long i;
+      static long Init = 1;
+
+      AC = &S->AC;
+
+      if (Init) {
+         Init = 0;
+         for(i=0;i<3;i++) {
+            FindPDGains(AC->MOI[i][i],0.1*TwoPi,0.7,&Kr[i],&Kp[i]);
+         }
+      }
+
+/* .. Form attitude error signals */
+      FindCLN(AC->PosN,AC->VelN,CLN,wln);
+      MxM(CRL,CLN,CRN);
+      C2Q(CRN,qrn);
+      QxQT(AC->qbn,qrn,AC->qbr);
+      //for(i=0;i<4;i++) AC->qbr[i] = AC->qbn[i];
+      RECTIFYQ(AC->qbr);
+      for(i=0;i<3;i++) {
+         therr[i] = Limit(2.0*AC->qbr[i],-0.01,0.01);
+         werr[i] = AC->wbn[i] - wln[i];
+      }
+
+/* .. Closed-loop attitude control */
+      for(i=0;i<3;i++) {
+         Tcmd[i] = -Kr[i]*werr[i]-Kp[i]*therr[i];
+      }
+      
+/* .. Point Antenna */
+      MTxV(World[EARTH].CWN,GroundStation[2].PosW,GndPosN); /* White Sands */
+      if (Orb[S->RefOrb].World == LUNA) {
+         for(i=0;i<3;i++) GndPosN[i] -= World[LUNA].eph.PosN[i];
+         MTxV(World[EARTH].CNH,GndPosN,GndPosH);
+         MxV(World[LUNA].CNH,GndPosH,GndPosN);  /* Luna N */
+      }
+      for(i=0;i<3;i++) ViewAxisN[i] = GndPosN[i] - S->PosN[i];
+      UNITV(ViewAxisN);
+      MxV(S->B[0].CN,ViewAxisN,ViewAxisB);
+      PointGimbalToTarget(21,S->G[0].CGiBi,S->G[0].CBoGo,ViewAxisB,Zvec,GimCmd);
+      for(i=0;i<2;i++) {
+         AC->G[0].GCmd.Ang[i] = GimCmd[i];
+         AngErr[i] = AC->G[0].Ang[i] - AC->G[0].GCmd.Ang[i];
+         AC->G[0].GCmd.AngRate[i] = -50.0*D2R*AngErr[i] - 10.0*D2R*IntgErr[i];
+         AC->G[0].GCmd.AngRate[i] = Limit(AC->G[0].GCmd.AngRate[i],
+            -0.5*D2R,0.5*D2R);
+         IntgErr[i] += AngErr[i]*AC->DT;
+         IntgErr[i] = Limit(IntgErr[i],-0.1,0.1);
+      }
+
+      for(i=0;i<3;i++) AC->IdealTrq[i] = Tcmd[i];
+      //for(i=0;i<3;i++) AC->Whl[i].Tcmd = -C->Tcmd[i];
+}
+/**********************************************************************/
 /*  This function is called at the simulation rate.  Sub-sampling of  */
 /*  control loops is managed by FswSampleCounter.                     */
 /*  Mode handling, command generation, error determination, feedback  */
@@ -2082,6 +2159,9 @@ void FlightSoftWare(struct SCType *S)
                break;
             case ROVER_FSW:
                RoverFSW(S);
+               break;
+            case LUNARCOMM_FSW:
+               LunarCommFSW(S);
                break;
             case CFS_FSW:
                #ifdef _AC_STANDALONE_

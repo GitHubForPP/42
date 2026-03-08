@@ -344,6 +344,7 @@ long SimStep(void)
                PartitionForces(S); /* Orbit-affecting and "internal" */
             }
          }
+         CommLinkPerformance();
          Report();  /* File Output */
       }
 
@@ -377,6 +378,7 @@ long SimStep(void)
             PartitionForces(S); /* Orbit-affecting and "internal" */
          }
       }
+      CommLinkPerformance();
       Report();  /* File Output */
 
       /* Exit when Stoptime is reached */

@@ -1,0 +1,38 @@
+<<<<<<<<<<<<<<<<<<<  42: Comm Link Description File   >>>>>>>>>>>>>>>>>>>
+2                    ! Number of Links
+===============================  Link 0  ================================
+S-Band Uplink        ! Description
+TRUE  1.0            ! Output Enabled, Interval (sec)
+1.0E9                ! Range Accuracy Tolerance (m)
+UPLINK               ! Link Type (UPLINK, DOWNLINK, or CROSSLINK)
+3.0E9                ! Frequency (Hz)
+1  0                 ! Tx Terminal ID, Body
+0.0 0.0 0.0 123      ! Tx Mounting Angles (deg), Euler Sequence
+1.0                  ! Tx Power (dBw)
+40.0  -50.0          ! Tx Antenna Peak Gain, Floor Gain (dB)
+"Ant_Gnd.obj"        ! Tx Antenna Pattern Mesh File
+0  0                 ! Rx Terminal ID, Body
+0.0 0.0 0.0 123      ! Rx Mounting Angles (deg), Euler Sequence
+10.0  -50.0          ! Rx Antenna Peak Gain, Floor Gain (dB)
+"Ant_Sband.obj"      ! Rx Antenna Pattern Mesh File
+2.0                  ! Rx System Noise Power (dB)
+0.5                  ! Atmo Loss Mean (dB)
+0.1  10.0   100      ! Atmo Loss Ran Walk std (dB), Corr Time (sec), Seed
+===============================  Link 1  ================================
+X-Band Downlink      ! Description
+TRUE  2.0            ! Output Enabled, Interval (sec)
+1.0E3                ! Range Accuracy Tolerance (m)
+DOWNLINK             ! Link Type (UPLINK, DOWNLINK, or CROSSLINK)
+10.0E9               ! Frequency (Hz)
+0  1                 ! Tx Terminal ID, Body
+0.0 0.0 0.0 123      ! Tx Mounting Angles (deg), Euler Sequence
+1.0                  ! Tx Power, (dBw)
+20.0  -50.0          ! Tx Antenna Peak Gain, Floor Gain (dB)
+"Ant_Xband.obj"      ! Tx Antenna Pattern File
+2  0                 ! Rx Terminal ID, Body
+0.0 0.0 0.0 123      ! Rx Mounting Angles (deg), Euler Sequence
+40.0  -50.0          ! Rx Antenna Peak Gain, Floor Gain (dB)
+"Ant_Gnd.obj"        ! Rx Antenna Pattern File
+2.0                  ! Rx System Noise Power (dB)
+0.5                  ! Atmo Loss Mean (dB)
+0.1  10.0   101      ! Atmo Loss Ran Walk std (dB), Corr Time (sec), Seed

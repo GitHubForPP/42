@@ -8,6 +8,12 @@ long ScBTlmEnabled, MaxScBCtr;
 long ScGTlmEnabled, MaxScGCtr;
 long ScWhlTlmEnabled, MaxScWhlCtr;
 long ScGyroTlmEnabled, MaxScGyroCtr;
+long ScMAGTlmEnabled, MaxScMAGCtr;
+long ScCSSTlmEnabled, MaxScCSSCtr;
+long ScFSSTlmEnabled, MaxScFSSCtr;
+long ScSTTlmEnabled, MaxScSTCtr;
+long ScGPSTlmEnabled, MaxScGPSCtr;
+long ScAccelTlmEnabled, MaxScAccelCtr;
 long ScShakerTlmEnabled, MaxScShakerCtr;
 /******************************************************************************/
 void WriteScToCsv(void)
@@ -45,6 +51,12 @@ void WriteScToCsv(void)
                   fprintf(outfile[Isc],",Sc_VelR_%ld",i+1);
                }
                for(i=0;i<3;i++) {
+                  fprintf(outfile[Isc],",Sc_PosN_%ld",i+1);
+               }
+               for(i=0;i<3;i++) {
+                  fprintf(outfile[Isc],",Sc_VelN_%ld",i+1);
+               }
+               for(i=0;i<3;i++) {
                   fprintf(outfile[Isc],",Sc_svb_%ld",i+1);
                }
                for(i=0;i<3;i++) {
@@ -76,6 +88,12 @@ void WriteScToCsv(void)
                }
                for(i=0;i<3;i++) {
                   fprintf(outfile[Isc],",%18.12le",S->VelR[i]);
+               }
+               for(i=0;i<3;i++) {
+                  fprintf(outfile[Isc],",%18.12le",S->PosN[i]);
+               }
+               for(i=0;i<3;i++) {
+                  fprintf(outfile[Isc],",%18.12le",S->VelN[i]);
                }
                for(i=0;i<3;i++) {
                   fprintf(outfile[Isc],",%18.12le",S->svb[i]);
@@ -331,6 +349,375 @@ void WriteScGyroToCsv(void)
 
 }
 /******************************************************************************/
+void WriteScMAGToCsv(void)
+{
+      static FILE **outfile;
+      struct SCType *S;
+      char FileName[80];
+      long Isc;
+      long k;
+      static long First = 1;
+      static long OutCtr = 1000000000;
+
+      if (First) {
+         First = 0;
+         outfile = (FILE**) calloc(Nsc,sizeof(FILE *));
+         for(Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               if (Nsc==1) sprintf(FileName,"ScMAG.csv");
+               else if (Nsc<=10) sprintf(FileName,"ScMAG%1ld.csv",Isc);
+               else sprintf(FileName,"ScMAG%02ld.csv",Isc);
+               outfile[Isc] = FileOpen(InOutPath,FileName,"w");
+
+               fprintf(outfile[Isc],"ScMAG_Time");
+               for(k=0;k<S->Nmag;k++) {
+                  fprintf(outfile[Isc],",Sc_MAG%ld_Field",k+1);
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+      OutCtr++;
+      if (OutCtr > MaxScMAGCtr) {
+         OutCtr = 1;
+         for (Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               fprintf(outfile[Isc],"%18.12le",SimTime);
+               for(k=0;k<S->Nmag;k++) {
+                  fprintf(outfile[Isc],",%18.12le",S->MAG[k].Field);
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+}
+/******************************************************************************/
+void WriteScCSSToCsv(void)
+{
+      static FILE **outfile;
+      struct SCType *S;
+      char FileName[80];
+      long Isc;
+      long k;
+      static long First = 1;
+      static long OutCtr = 1000000000;
+
+      if (First) {
+         First = 0;
+         outfile = (FILE**) calloc(Nsc,sizeof(FILE *));
+         for(Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               if (Nsc==1) sprintf(FileName,"ScCSS.csv");
+               else if (Nsc<=10) sprintf(FileName,"ScCSS%1ld.csv",Isc);
+               else sprintf(FileName,"ScCSS%02ld.csv",Isc);
+               outfile[Isc] = FileOpen(InOutPath,FileName,"w");
+
+               fprintf(outfile[Isc],"ScCSS_Time");
+               for(k=0;k<S->Ncss;k++) {
+                  fprintf(outfile[Isc],",Sc_CSS%ld_Valid",k+1);
+               }
+               for(k=0;k<S->Ncss;k++) {
+                  fprintf(outfile[Isc],",Sc_CSS%ld_Illum",k+1);
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+      OutCtr++;
+      if (OutCtr > MaxScCSSCtr) {
+         OutCtr = 1;
+         for (Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               fprintf(outfile[Isc],"%18.12le",SimTime);
+               for(k=0;k<S->Ncss;k++) {
+                  fprintf(outfile[Isc],",%ld",S->CSS[k].Valid);
+               }
+               for(k=0;k<S->Ncss;k++) {
+                  fprintf(outfile[Isc],",%18.12le",S->CSS[k].Illum);
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+}
+/******************************************************************************/
+void WriteScFSSToCsv(void)
+{
+      static FILE **outfile;
+      struct SCType *S;
+      char FileName[80];
+      long Isc;
+      long k;
+      long i;
+      static long First = 1;
+      static long OutCtr = 1000000000;
+
+      if (First) {
+         First = 0;
+         outfile = (FILE**) calloc(Nsc,sizeof(FILE *));
+         for(Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               if (Nsc==1) sprintf(FileName,"ScFSS.csv");
+               else if (Nsc<=10) sprintf(FileName,"ScFSS%1ld.csv",Isc);
+               else sprintf(FileName,"ScFSS%02ld.csv",Isc);
+               outfile[Isc] = FileOpen(InOutPath,FileName,"w");
+
+               fprintf(outfile[Isc],"ScFSS_Time");
+               for(k=0;k<S->Nfss;k++) {
+                  fprintf(outfile[Isc],",Sc_FSS%ld_Valid",k+1);
+               }
+               for(k=0;k<S->Nfss;k++) {
+                  for(i=0;i<2;i++) {
+                     fprintf(outfile[Isc],",Sc_FSS%ld_SunAng_%ld",k+1,i+1);
+                  }
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+      OutCtr++;
+      if (OutCtr > MaxScFSSCtr) {
+         OutCtr = 1;
+         for (Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               fprintf(outfile[Isc],"%18.12le",SimTime);
+               for(k=0;k<S->Nfss;k++) {
+                  fprintf(outfile[Isc],",%ld",S->FSS[k].Valid);
+               }
+               for(k=0;k<S->Nfss;k++) {
+                  for(i=0;i<2;i++) {
+                     fprintf(outfile[Isc],",%18.12le",S->FSS[k].SunAng[i]);
+                  }
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+}
+/******************************************************************************/
+void WriteScSTToCsv(void)
+{
+      static FILE **outfile;
+      struct SCType *S;
+      char FileName[80];
+      long Isc;
+      long k;
+      long i;
+      static long First = 1;
+      static long OutCtr = 1000000000;
+
+      if (First) {
+         First = 0;
+         outfile = (FILE**) calloc(Nsc,sizeof(FILE *));
+         for(Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               if (Nsc==1) sprintf(FileName,"ScST.csv");
+               else if (Nsc<=10) sprintf(FileName,"ScST%1ld.csv",Isc);
+               else sprintf(FileName,"ScST%02ld.csv",Isc);
+               outfile[Isc] = FileOpen(InOutPath,FileName,"w");
+
+               fprintf(outfile[Isc],"ScST_Time");
+               for(k=0;k<S->Nst;k++) {
+                  fprintf(outfile[Isc],",Sc_ST%ld_Valid",k+1);
+               }
+               for(k=0;k<S->Nst;k++) {
+                  for(i=0;i<4;i++) {
+                     fprintf(outfile[Isc],",Sc_ST%ld_qn_%ld",k+1,i+1);
+                  }
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+      OutCtr++;
+      if (OutCtr > MaxScSTCtr) {
+         OutCtr = 1;
+         for (Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               fprintf(outfile[Isc],"%18.12le",SimTime);
+               for(k=0;k<S->Nst;k++) {
+                  fprintf(outfile[Isc],",%ld",S->ST[k].Valid);
+               }
+               for(k=0;k<S->Nst;k++) {
+                  for(i=0;i<4;i++) {
+                     fprintf(outfile[Isc],",%18.12le",S->ST[k].qn[i]);
+                  }
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+}
+/******************************************************************************/
+void WriteScGPSToCsv(void)
+{
+      static FILE **outfile;
+      struct SCType *S;
+      char FileName[80];
+      long Isc;
+      long k;
+      long i;
+      static long First = 1;
+      static long OutCtr = 1000000000;
+
+      if (First) {
+         First = 0;
+         outfile = (FILE**) calloc(Nsc,sizeof(FILE *));
+         for(Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               if (Nsc==1) sprintf(FileName,"ScGPS.csv");
+               else if (Nsc<=10) sprintf(FileName,"ScGPS%1ld.csv",Isc);
+               else sprintf(FileName,"ScGPS%02ld.csv",Isc);
+               outfile[Isc] = FileOpen(InOutPath,FileName,"w");
+
+               fprintf(outfile[Isc],"ScGPS_Time");
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",Sc_GPS%ld_Valid",k+1);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",Sc_GPS%ld_Rollover",k+1);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",Sc_GPS%ld_Week",k+1);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",Sc_GPS%ld_Sec",k+1);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",Sc_GPS%ld_PosN_%ld",k+1,i+1);
+                  }
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",Sc_GPS%ld_VelN_%ld",k+1,i+1);
+                  }
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",Sc_GPS%ld_PosW_%ld",k+1,i+1);
+                  }
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",Sc_GPS%ld_VelW_%ld",k+1,i+1);
+                  }
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+      OutCtr++;
+      if (OutCtr > MaxScGPSCtr) {
+         OutCtr = 1;
+         for (Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               fprintf(outfile[Isc],"%18.12le",SimTime);
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",%ld",S->GPS[k].Valid);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",%ld",S->GPS[k].Rollover);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",%ld",S->GPS[k].Week);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  fprintf(outfile[Isc],",%18.12le",S->GPS[k].Sec);
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",%18.12le",S->GPS[k].PosN[i]);
+                  }
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",%18.12le",S->GPS[k].VelN[i]);
+                  }
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",%18.12le",S->GPS[k].PosW[i]);
+                  }
+               }
+               for(k=0;k<S->Ngps;k++) {
+                  for(i=0;i<3;i++) {
+                     fprintf(outfile[Isc],",%18.12le",S->GPS[k].VelW[i]);
+                  }
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+}
+/******************************************************************************/
+void WriteScAccelToCsv(void)
+{
+      static FILE **outfile;
+      struct SCType *S;
+      char FileName[80];
+      long Isc;
+      long k;
+      static long First = 1;
+      static long OutCtr = 1000000000;
+
+      if (First) {
+         First = 0;
+         outfile = (FILE**) calloc(Nsc,sizeof(FILE *));
+         for(Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               if (Nsc==1) sprintf(FileName,"ScAccel.csv");
+               else if (Nsc<=10) sprintf(FileName,"ScAccel%1ld.csv",Isc);
+               else sprintf(FileName,"ScAccel%02ld.csv",Isc);
+               outfile[Isc] = FileOpen(InOutPath,FileName,"w");
+
+               fprintf(outfile[Isc],"ScAccel_Time");
+               for(k=0;k<S->Nacc;k++) {
+                  fprintf(outfile[Isc],",Sc_Accel%ld_TrueAcc",k+1);
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+      OutCtr++;
+      if (OutCtr > MaxScAccelCtr) {
+         OutCtr = 1;
+         for (Isc=0;Isc<Nsc;Isc++) {
+            if (SC[Isc].Exists) {
+               S = &SC[Isc];
+               fprintf(outfile[Isc],"%18.12le",SimTime);
+               for(k=0;k<S->Nacc;k++) {
+                  fprintf(outfile[Isc],",%18.12le",S->Accel[k].TrueAcc);
+               }
+               fprintf(outfile[Isc],"\n");
+            }
+         }
+      }
+
+}
+/******************************************************************************/
 void WriteScShakerToCsv(void)
 {
       static FILE **outfile;
@@ -432,6 +819,54 @@ void WriteScVarsToCsv(void)
          else MaxScGyroCtr = (long) (dt/DTSIM+0.5);
 
          fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
+         ScMAGTlmEnabled = DecodeString(response);
+         if (dt < DTSIM) {
+            printf("ScMAG timestep < DTSIM.  You'll want to fix that.");
+            exit(1);
+         }
+         else MaxScMAGCtr = (long) (dt/DTSIM+0.5);
+
+         fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
+         ScCSSTlmEnabled = DecodeString(response);
+         if (dt < DTSIM) {
+            printf("ScCSS timestep < DTSIM.  You'll want to fix that.");
+            exit(1);
+         }
+         else MaxScCSSCtr = (long) (dt/DTSIM+0.5);
+
+         fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
+         ScFSSTlmEnabled = DecodeString(response);
+         if (dt < DTSIM) {
+            printf("ScFSS timestep < DTSIM.  You'll want to fix that.");
+            exit(1);
+         }
+         else MaxScFSSCtr = (long) (dt/DTSIM+0.5);
+
+         fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
+         ScSTTlmEnabled = DecodeString(response);
+         if (dt < DTSIM) {
+            printf("ScST timestep < DTSIM.  You'll want to fix that.");
+            exit(1);
+         }
+         else MaxScSTCtr = (long) (dt/DTSIM+0.5);
+
+         fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
+         ScGPSTlmEnabled = DecodeString(response);
+         if (dt < DTSIM) {
+            printf("ScGPS timestep < DTSIM.  You'll want to fix that.");
+            exit(1);
+         }
+         else MaxScGPSCtr = (long) (dt/DTSIM+0.5);
+
+         fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
+         ScAccelTlmEnabled = DecodeString(response);
+         if (dt < DTSIM) {
+            printf("ScAccel timestep < DTSIM.  You'll want to fix that.");
+            exit(1);
+         }
+         else MaxScAccelCtr = (long) (dt/DTSIM+0.5);
+
+         fscanf(infile,"%s %lf %[^\n] %[\n]",response,&dt,junk,&newline);
          ScShakerTlmEnabled = DecodeString(response);
          if (dt < DTSIM) {
             printf("ScShaker timestep < DTSIM.  You'll want to fix that.");
@@ -446,6 +881,12 @@ void WriteScVarsToCsv(void)
       if (ScGTlmEnabled) WriteScGToCsv();
       if (ScWhlTlmEnabled) WriteScWhlToCsv();
       if (ScGyroTlmEnabled) WriteScGyroToCsv();
+      if (ScMAGTlmEnabled) WriteScMAGToCsv();
+      if (ScCSSTlmEnabled) WriteScCSSToCsv();
+      if (ScFSSTlmEnabled) WriteScFSSToCsv();
+      if (ScSTTlmEnabled) WriteScSTToCsv();
+      if (ScGPSTlmEnabled) WriteScGPSToCsv();
+      if (ScAccelTlmEnabled) WriteScAccelToCsv();
       if (ScShakerTlmEnabled) WriteScShakerToCsv();
 
 }

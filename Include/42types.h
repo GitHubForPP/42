@@ -712,6 +712,8 @@ struct SCType {
    double wn[3]; /* Angular rates of Body 0 in N [[rad/sec]] [~=~] */
    double PosR[3]; /* Position of cm wrt Reference Orbit [[m]], expressed in N [~=~] */
    double VelR[3]; /* Velocity of cm wrt R [[m/s]], expressed in N [~=~] */
+   double PosN[3];   /* Position of cm wrt origin of N, m, expressed in N */
+   double VelN[3];   /* Velocity of cm wrt origin of N, m/sec, expressed in N */
    double svb[3]; /* Sun-pointing unit vector, expressed in SC.B[0] [~=~] */
    double bvb[3]; /* Magfield [[Tesla]], expressed in SC.B[0] [~=~] */
    double Hvb[3]; /* Total SC angular momentum [[Nms]], expressed in SC.B[0] [~=~] */
@@ -751,8 +753,6 @@ struct SCType {
    double I[3][3]; /* Inertia matrix, wrt SC.cm, expressed in B0 frame */
    double PosEH[3];  /* Position of cm wrt R, m, in Euler-Hill coords */
    double VelEH[3];  /* Velocity of cm wrt R, m, in Euler-Hill coords */
-   double PosN[3];   /* Position of cm wrt origin of N, m, expressed in N */
-   double VelN[3];   /* Velocity of cm wrt origin of N, m/sec, expressed in N */
    double CLN[3][3]; /* Note that SC.CLN != Orb[RefOrb].CLN if SC.PosR != 0.0 */
    double CEN[3][3]; /* E = Equatorial frame: e1 = North, e2 = East, e3 = Nadir */
    double wln[3]; /* Expressed in N */
@@ -1084,6 +1084,89 @@ struct ConstellationType {
    /* For each line */
    long *Star1;
    long *Star2;
+};
+
+struct AntPattType {
+   double PeakGain; /* [dB] */
+   double FloorGain; /* [dB] */
+   long MeshTag;
+};
+
+struct CommLinkType {
+   /*~ Outputs ~*/
+   double Doppler; /* Frequency shift ratio */
+   double Loss; /* [[dB]] */
+   double Delay; /* [[sec]] */
+   double Carrier; /* [[dBw]] */
+   double Noise; /* [[dBw]] */
+   double CNR; /* Carrier to Noise ratio [[dB]] */
+   double EIRP; /* [[dBw]] */
+   double PowerFluxDensity; /* [[dBw]] */ 
+   double Range; /* [[m]] */
+   double RangeRate; /* [[m/s]] */
+   double TxAntGain; /* [[dB]] */
+   double RxAntGain; /* [[dB]] */
+   long TxOcculted;
+   long RxOcculted;
+   long PathIsOcculted;
+
+   /*~ Internal Variables ~*/
+   long Init;
+   long MaxOutCtr;
+   long OutCtr;
+   long OutEnabled;
+   double DelayTol; /* [[sec]] */
+   
+   long LinkType; /* UPLINK (Gnd->SC),DOWNLINK(SC->Gnd),CROSSLINK(SC->SC) */
+   long TxID;
+   long TxBody;
+   long TxWorld;
+   double TxCAB[3][3];
+   double TxCAN[3][3];
+   double TxCAH[3][3];
+   double TxPosN[3];
+   double TxVelN[3];
+   double TxPosH[3];
+   double TxVelH[3];
+
+   long RxID;
+   long RxBody;
+   long RxWorld;
+   double RxCAB[3][3];
+   double RxCAN[3][3];
+   double RxCAH[3][3];
+   double RxPosN[3];
+   double RxVelN[3];
+   double RxPosH[3];
+   double RxVelH[3];
+
+   double Freq; /* [[Hz]] */
+   double Wavelength; /* [[m]] */
+   
+   double TxPower; /* [[dBw]] */
+   char TxAntFileName[80];
+
+   
+   double TxPathDirN[3]; /* Points from Tx to Rx, expressed in Tx's N */
+   double RxPathDirN[3]; /* Points from Rx to Tx, expressed in Rx's N */
+   double TxPathDirH[3]; /* Points from Tx to Rx, expressed in H */
+   double RxPathDirH[3]; /* Points from Rx to Tx, expressed in H */
+   double FreeSpacePathLoss; /* [[dB]] */
+   double AtmoPathLoss; /* [[dB]] */
+   double PathLoss; /* [[dB]] */
+
+   char RxAntFileName[80];
+   double RxNoisePower; /* [[dB]] */
+
+   double AtmoMean; /* [[dB]] */
+   double AtmoStd; /* [[dB]] */
+   double AtmoCorrTime; /* [[sec]] */
+
+   /*~ Structures ~*/
+   struct RandomProcessType *AtmoNoise;
+   struct AntPattType TxAntPatt;
+   struct AntPattType RxAntPatt;
+   
 };
 
 
